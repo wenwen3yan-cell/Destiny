@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>七星曜 · 三十命格签</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #F9F8F6;
+            --bg-warm: #F5F2EB;
+            --text-primary: #2C2C2C;
+            --text-secondary: #5C5C5C;
+            --accent-gold: #B76E3A;
+            --accent-ochre: #8B5A2B;
+            --border-light: rgba(0, 0, 0, 0.05);
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans SC', sans-serif;
+            background: linear-gradient(135deg, var(--bg-color) 0%, var(--bg-warm) 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.8;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            position: relative;
+        }
+
+        /* 顶部标题区 */
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            position: relative;
+        }
+
+        .header::before {
+            content: '◆';
+            display: block;
+            color: var(--accent-gold);
+            font-size: 12px;
+            margin-bottom: 16px;
+            opacity: 0.6;
+            letter-spacing: 8px;
+        }
+
+        h1 {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            letter-spacing: 4px;
+            font-weight: 300;
+        }
+
+        /* 数字显示区 */
+        .number-display {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 48px 0;
+            position: relative;
+        }
+
+        .number-circle {
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .number-circle.shaking {
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0) rotate(0deg); }
+            25% { transform: translateX(-8px) rotate(-5deg); }
+            75% { transform: translateX(8px) rotate(5deg); }
+        }
+
+        .number-text {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 72px;
+            font-weight: 700;
+            color: var(--accent-gold);
+            opacity: 0;
+            transform: scale(0.8);
+            transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .number-text.show {
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        .number-placeholder {
+            font-size: 14px;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            position: absolute;
+        }
+
+        .number-circle.has-number .number-placeholder {
+            display: none;
+        }
+
+        /* 按钮区 */
+        .button-group {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 48px;
+        }
+
+        button {
+            padding: 14px 32px;
+            border: none;
+            border-radius: 4px;
+            font-family: 'Noto Sans SC', sans-serif;
+            font-size: 15px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: var(--text-primary);
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-ochre);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 90, 43, 0.2);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 1px solid var(--border-light);
+        }
+
+        .btn-secondary:hover {
+            background: var(--card-bg);
+            border-color: var(--accent-gold);
+            color: var(--accent-gold);
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        /* 提示信息 */
+        .hint {
+            text-align: center;
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-top: -24px;
+            margin-bottom: 32px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            font-style: italic;
+        }
+
+        .hint.show {
+            opacity: 1;
+        }
+
+        /* 命格卡片 */
+        .destiny-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 40px 32px;
+            box-shadow: var(--shadow);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            display: none;
+        }
+
+        .destiny-card.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .card-number {
+            font-size: 12px;
+            color: var(--text-secondary);
+            letter-spacing: 3px;
+            margin-bottom: 8px;
+        }
+
+        .card-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: 4px;
+        }
+
+        .card-section {
+            margin-bottom: 28px;
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .card-section::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 8px;
+            width: 4px;
+            height: 4px;
+            background: var(--accent-gold);
+            border-radius: 50%;
+        }
+
+        .section-title {
+            font-family: 'Noto Serif SC', serif;
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--accent-ochre);
+            margin-bottom: 8px;
+            letter-spacing: 2px;
+        }
+
+        .section-content {
+            font-size: 15px;
+            color: var(--text-primary);
+            line-height: 1.9;
+            text-align: justify;
+        }
+
+        .heart-seal {
+            margin-top: 32px;
+            padding: 24px;
+            background: linear-gradient(135deg, rgba(183, 110, 58, 0.05) 0%, rgba(139, 90, 43, 0.03) 100%);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-gold);
+            position: relative;
+        }
+
+        .heart-seal .section-title {
+            color: var(--accent-gold);
+        }
+
+        .heart-seal .section-content {
+            font-family: 'Noto Serif SC', serif;
+            font-style: italic;
+            font-size: 16px;
+            color: var(--accent-ochre);
+            line-height: 2;
+        }
+
+        /* 底部签名 */
+        .footer {
+            text-align: center;
+            margin-top: 48px;
+            padding-top: 24px;
+            font-size: 13px;
+            color: var(--text-secondary);
+            letter-spacing: 2px;
+            font-style: italic;
+            opacity: 0.7;
+        }
+
+        .footer::before {
+            content: '—';
+            display: block;
+            margin-bottom: 12px;
+            letter-spacing: 8px;
+        }
+
+        /* 响应式 */
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 24px;
+                letter-spacing: 4px;
+            }
+
+            .number-circle {
+                width: 120px;
+                height: 120px;
+            }
+
+            .number-text {
+                font-size: 56px;
+            }
+
+            .button-group {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            button {
+                width: 160px;
+            }
+
+            .destiny-card {
+                padding: 28px 20px;
+            }
+
+            .card-title {
+                font-size: 22px;
+            }
+        }
+
+        /* 装饰元素 */
+        .decoration {
+            position: fixed;
+            pointer-events: none;
+            opacity: 0.03;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 200px;
+            z-index: -1;
+        }
+
+        .decoration-1 {
+            top: -50px;
+            right: -30px;
+            transform: rotate(15deg);
+        }
+
+        .decoration-2 {
+            bottom: -30px;
+            left: -20px;
+            transform: rotate(-10deg);
+        }
+    </style>
+<base target="_blank">
+</head>
+<body>
+    <div class="decoration decoration-1">命</div>
+    <div class="decoration decoration-2">缘</div>
+
+    <div class="container">
+        <header class="header">
+            <h1>七星曜</h1>
+            <p class="subtitle">三十命格签 · 摇数问心</p>
+        </header>
+
+        <div class="number-display">
+            <div class="number-circle" id="numberCircle">
+                <span class="number-placeholder">待摇签</span>
+                <span class="number-text" id="numberText"></span>
+            </div>
+        </div>
+
+        <div class="button-group">
+            <button class="btn-primary" id="shakeBtn" onclick="shakeNumber()">摇 签</button>
+            <button class="btn-secondary" id="viewBtn" onclick="viewDestiny()">查看命理</button>
+        </div>
+
+        <div class="hint" id="hint">请先摇出今日之数</div>
+
+        <div class="destiny-card" id="destinyCard">
+            <div class="card-header">
+                <div class="card-number" id="cardNumber">第 · 签</div>
+                <h2 class="card-title" id="cardTitle"></h2>
+            </div>
+
+            <div class="card-section">
+                <div class="section-title">灵数 · 色讳</div>
+                <div class="section-content" id="sectionColor"></div>
+            </div>
+
+            <div class="card-section">
+                <div class="section-title">事局 · 进退</div>
+                <div class="section-content" id="sectionCareer"></div>
+            </div>
+
+            <div class="card-section">
+                <div class="section-title">情缘 · 渡口</div>
+                <div class="section-content" id="sectionLove"></div>
+            </div>
+
+            <div class="heart-seal">
+                <div class="section-title">心印 · 一言</div>
+                <div class="section-content" id="sectionHeart"></div>
+            </div>
+        </div>
+
+        <footer class="footer">
+            命理是镜，你才是光
+        </footer>
+    </div>
+
+    <script>
+        // 30组命格数据 - 使用模板字符串避免引号问题
+        const destinyData = [
+            {
+                id: 1,
+                title: "破军·离火",
+                color: "忌3、7；幸色玄铁灰、血珀红。",
+                career: "今日不争锋。任何「必须赢」的念头都是陷阱。让一子，得半局。",
+                love: "旧人信息是火中冰，勿触。新缘分藏在你不耐烦答应的邀约里。",
+                heart: "你所拼命抓住的，其实正在勒死你。松手不是放弃，是换一口气。"
+            },
+            {
+                id: 2,
+                title: "天相·巽风",
+                color: "宜5、8；幸色竹青、藕粉。",
+                career: "上午签字、应允、承诺。下午三时后任何决定都延到次日。",
+                love: "对方向你诉苦时，只说「我在听」三字，胜过千言。",
+                heart: "温柔不是软弱，是看透了锋利之后，选择不再使用它。"
+            },
+            {
+                id: 3,
+                title: "七杀·艮土",
+                color: "忌9；幸色陶土黄、墨绿。",
+                career: "做一件你一直嫌「脏累烦」的小事（修东西、清理角落、整理旧文件）。",
+                love: "若吵架，先道歉的人不是输家，是破局者。",
+                heart: "低处弯腰，不是因为输，是因为知道风会从低处过。"
+            },
+            {
+                id: 4,
+                title: "贪狼·坎水",
+                color: "忌2、6；幸色夜蓝、银白。",
+                career: "今天收到的红包、转账、礼物，必须花掉一半（买书、买花、买食物分人）。",
+                love: "你越想掌控的人，今晚会离你越远。松手，ta会绕回来。",
+                heart: "贪心是饿鬼道，知足是天道。中间那条路，叫「够了」。"
+            },
+            {
+                id: 5,
+                title: "巨门·坤土",
+                color: "宜1、4；幸色鸦青、琥珀黄。",
+                career: "有人会向你打探秘密或八卦。回答「我记不清了」是护身符。",
+                love: "沉默不是冷暴力。今日对伴侣沉默一小时，胜过一万句无效解释。",
+                heart: "闭嘴时听到的，才是这个世界没打算告诉你的那一半。"
+            },
+            {
+                id: 6,
+                title: "武曲·乾金",
+                color: "忌0、5；幸色铜金、檀棕。",
+                career: "今天必须说一个「不」字。不敢拒绝的事，会成为三个月的债。",
+                love: "单身者宜主动约人喝苦咖啡。有伴者宜一起算账（家庭财务）。",
+                heart: "干净地失去，胜过肮脏地拥有。空手站着，也是一种姿势。"
+            },
+            {
+                id: 7,
+                title: "天府·离火归中",
+                color: "宜7；幸色霁蓝、灰粉。",
+                career: "中午11点到1点，放下手机，吃一餐不看屏幕的饭。",
+                love: "你会无意中帮到一个陌生人。这个人的感谢会转化为你三天内的好运。",
+                heart: "你不需要变得更好，你只需要认出自己已经足够。"
+            },
+            {
+                id: 8,
+                title: "太阳·午火",
+                color: "忌1、8；幸色金盏黄、月白。",
+                career: "适合公开表达、演讲、发朋友圈。私密的事留到晚上做。",
+                love: "今天主动夸三个人（包括陌生人）。夸完你自己的运气会上浮。",
+                heart: "光不是照向黑暗的，光是不辨认黑暗的。它只是亮着。"
+            },
+            {
+                id: 9,
+                title: "太阴·酉金",
+                color: "宜2、9；幸色霜灰、淡紫。",
+                career: "今天适合独处、整理回忆、写日记。不适合任何团队讨论。",
+                love: "如果想起某个已经失去的人，就在心里说「谢谢你，再见」。说三次。",
+                heart: "月亮从不挽留潮水，潮水却永远记得月亮。这就是距离的意义。"
+            },
+            {
+                id: 10,
+                title: "廉贞·巳火",
+                color: "忌4、7；幸色绛红、鸦黑。",
+                career: "今天容易被人误解。不要解释超过两句话。两句话后，沉默是金。",
+                love: "有人会试探你的底线。温和而坚定地说「这样不行」。",
+                heart: "边界不是墙，是门上的锁——你有钥匙，但你不必一直锁着。"
+            },
+            {
+                id: 11,
+                title: "禄存·辰土",
+                color: "宜3、6；幸色苔绿、米驼。",
+                career: "把桌面、手机相册、电脑文件夹清理干净。干净生财。",
+                love: "欠别人的小人情（一杯奶茶、一次帮忙）今天还掉。还的是债，来的是福。",
+                heart: "积累不是加法，是减法后的余额。少即是多，空即是满。"
+            },
+            {
+                id: 12,
+                title: "文曲·亥水",
+                color: "忌5；幸色雾蓝、银灰。",
+                career: "今天学习新东西极快。学一个你好奇但觉得「没用」的技能。",
+                love: "写一封信（不一定要寄出）。写给过去的自己或未来的对方。",
+                heart: "灵感不是想出来的，是你走神时撞上来的。所以允许自己发呆。"
+            },
+            {
+                id: 13,
+                title: "左辅·寅木",
+                color: "宜7、0（视为10）；幸色松绿、暖杏。",
+                career: "今天适合做「配角」——辅助他人、提供资源、牵线搭桥。",
+                love: "把你的一个朋友介绍给另一个朋友，你的善缘会翻倍。",
+                heart: "成就别人的人，从不缺成就。因为世界是圆的。"
+            },
+            {
+                id: 14,
+                title: "右弼·卯木",
+                color: "忌2；幸色豆绿、奶茶色。",
+                career: "今天会有人请你帮忙。帮五分，留五分让对方自己完成。",
+                love: "伴侣/家人抱怨时，先问「你需要我做什么？」而不是「你怎么了」。",
+                heart: "恰到好处的帮助，是给人梯子而不是背人上楼。"
+            },
+            {
+                id: 15,
+                title: "天机·丑土",
+                color: "宜9、1；幸色檀褐、灰蓝。",
+                career: "今天不适合创新，适合复用旧方案。复制+微调=安全过关。",
+                love: "如果你在犹豫要不要联系一个人，答案是「不联系」。犹豫就是答案。",
+                heart: "聪明人走新路，智慧人走老路。但真正通透的人，知道什么时候该掉头。"
+            },
+            {
+                id: 16,
+                title: "紫微·子水",
+                color: "忌4；幸色深紫、珍珠白。",
+                career: "今天你说了算。做一个决定，哪怕小到「今晚吃什么」。主动选择。",
+                love: "对喜欢的人说一句「你今天很好看」。对不喜欢的人说「谢谢你」。",
+                heart: "王冠不在头上，在你做出选择的那个瞬间。然后你就忘了它。"
+            },
+            {
+                id: 17,
+                title: "天梁·未土",
+                color: "宜6；幸色熟赭、米白。",
+                career: "今天适合「还」——还书、还钱、还时间、还一个道歉。",
+                love: "原谅一个人不是为了他，是为了你自己不被那根刺继续扎。",
+                heart: "放下的那一刻，轻的不是过去，是你自己。"
+            },
+            {
+                id: 18,
+                title: "天同·申金",
+                color: "忌0；幸色蜜橘、浅卡其。",
+                career: "今天吃顿好的。不是贵的，是让你开心的。食物是今日药引。",
+                love: "笑的时候多露两颗牙。你的笑容今天会救一个人（包括你自己）。",
+                heart: "快乐不是奖赏，是呼吸的另一种形态。你不需要争取，只需要允许。"
+            },
+            {
+                id: 19,
+                title: "擎羊·戌土",
+                color: "宜3、8；幸色铁灰、赭石。",
+                career: "今天会遇到一个「拦路虎」（拖延的任务、难缠的人）。直接走过去，别绕。",
+                love: "有人会对你发脾气。别接他的情绪，接他的事实。",
+                heart: "剑是用来出鞘的，不是用来供着的。人也是。"
+            },
+            {
+                id: 20,
+                title: "陀罗·巳火",
+                color: "忌7；幸色石墨黑、冷棕。",
+                career: "今天慢。走路慢、说话慢、回复消息慢。慢中不出错，出错皆因快。",
+                love: "如果有人在催你，回答「我在想，很快」。然后继续慢。",
+                heart: "陀螺停下来的地方，才是真正开始转的地方。静止是另一种动。"
+            },
+            {
+                id: 21,
+                title: "火星·午火",
+                color: "宜5、2；幸色朱砂红、沙色。",
+                career: "今天容易发火。发火前先喝半杯凉水。半杯水后还想发，那就发。",
+                love: "吵架时说出「我其实很害怕」这句话，架就吵不下去了。",
+                heart: "愤怒是受伤的另一种发音。听懂它，就不必喊了。"
+            },
+            {
+                id: 22,
+                title: "地空·亥水",
+                color: "忌1；幸色月灰、薄青。",
+                career: "今天计划容易落空。准备一个B计划，但最好连B计划也别太当真。",
+                love: "期待落空时，对自己说「刚好，省了力气」。",
+                heart: "空出来的地方，正好放新的东西。舍不得旧碗，接不到新水。"
+            },
+            {
+                id: 23,
+                title: "地劫·寅木",
+                color: "宜4、9；幸色枯草色、苔灰。",
+                career: "今天丢东西、忘事情是吉兆。丢的是霉运，忘的是旧账。",
+                love: "失去一样东西，原地站三秒，然后继续走。回头看的每一秒都是双倍损失。",
+                heart: "劫是剥落的壳，里面是新的仁。痛是壳裂开的声音。"
+            },
+            {
+                id: 24,
+                title: "化禄·辰土",
+                color: "宜6、0；幸色金棕、奶白。",
+                career: "今天适合请客、送礼、发红包。出去的钱会带更多人回来。",
+                love: "对服务员、快递员、保洁员认真说「谢谢」。这三个谢字是今天最大风水。",
+                heart: "财富像水，流出去才会活。死水只会发臭。"
+            },
+            {
+                id: 25,
+                title: "化权·未土",
+                color: "忌8；幸色深檀、赭红。",
+                career: "今天你掌握权力。做决定时问一句「如果我是对方，我会怎么想？」",
+                love: "对下属、晚辈或弱势者，把「你应该」换成「你可以试试」。",
+                heart: "真正的权力是让别人变得更强大。强者的手是托举的，不是攥紧的。"
+            },
+            {
+                id: 26,
+                title: "化科·酉金",
+                color: "宜3、7；幸色象牙白、淡金。",
+                career: "今天适合署名、汇报、发表。你的名字会被记住。",
+                love: "帮别人传递好话。传一句好话，你自己会收到三句。",
+                heart: "名声不是你要的，是别人自愿给的。你要的应该是配得上它。"
+            },
+            {
+                id: 27,
+                title: "化忌·丑土",
+                color: "忌5、2；幸色脏粉、灰绿。",
+                career: "今天不顺是常态。做三件小事即可：喝水、深呼吸、换鞋。",
+                love: "如果有人抱怨你，回答「你说得有道理，我考虑一下」。这句是护身咒。",
+                heart: "不顺是大地在帮你减速，免得你摔得太重。感谢坑洼。"
+            },
+            {
+                id: 28,
+                title: "龙池·寅木",
+                color: "宜1、8；幸色水绿、贝色。",
+                career: "今天适合靠近水（喝水、看海、听雨声）。水能开智。",
+                love: "原谅自己今天犯的任何一个错。你原谅自己的那一刻，别人也会原谅你。",
+                heart: "深水不响，响水不深。安静的人往往藏着你不知道的深度。"
+            },
+            {
+                id: 29,
+                title: "凤阁·午火",
+                color: "忌4；幸色绯红、暖灰。",
+                career: "今天适合打扮、展示、表演。哪怕只是换一条你喜欢的围巾。",
+                love: "对镜子里的自己笑一下。你笑完，今天遇到的第一个人也会对你笑。",
+                heart: "你觉得自己好看的时候，全世界都好看。美是从内溢出的。"
+            },
+            {
+                id: 30,
+                title: "天德·戌土",
+                color: "宜0、6；幸色沉香、月白。",
+                career: "今天你做的好事，三天后会回到你身上。做一件不告诉任何人的好事。",
+                love: "如果有人向你道歉，说「我收到了」。不必说「没关系」，除非你真的没关系。",
+                heart: "德不是积攒的，是忘记之后剩下的。像盐溶进水里，看不见，但尝得到。"
+            }
+        ];
+
+        let currentNumber = null;
+        let isShaking = false;
+
+        function shakeNumber() {
+            if (isShaking) return;
+
+            isShaking = true;
+            const circle = document.getElementById('numberCircle');
+            const numberText = document.getElementById('numberText');
+            const hint = document.getElementById('hint');
+            const card = document.getElementById('destinyCard');
+
+            // 隐藏之前的卡片
+            card.classList.remove('show');
+            hint.classList.remove('show');
+
+            // 开始摇晃动画
+            circle.classList.add('shaking');
+            numberText.classList.remove('show');
+
+            // 模拟摇签过程
+            let count = 0;
+            const maxCount = 8;
+            const interval = setInterval(function() {
+                const tempNum = Math.floor(Math.random() * 30) + 1;
+                numberText.textContent = tempNum;
+                numberText.classList.add('show');
+
+                count++;
+                if (count >= maxCount) {
+                    clearInterval(interval);
+
+                    // 最终结果
+                    currentNumber = Math.floor(Math.random() * 30) + 1;
+                    numberText.textContent = currentNumber;
+                    circle.classList.add('has-number');
+                    circle.classList.remove('shaking');
+
+                    // 显示提示
+                    hint.textContent = '数字已现，点击查看命理';
+                    hint.classList.add('show');
+
+                    isShaking = false;
+                }
+            }, 80);
+        }
+
+        function viewDestiny() {
+            const hint = document.getElementById('hint');
+            const card = document.getElementById('destinyCard');
+
+            if (!currentNumber) {
+                hint.textContent = '请先摇出今日之数';
+                hint.classList.add('show');
+
+                // 震动提示
+                const circle = document.getElementById('numberCircle');
+                circle.style.transform = 'translateX(-5px)';
+                setTimeout(function() {
+                    circle.style.transform = 'translateX(5px)';
+                    setTimeout(function() {
+                        circle.style.transform = 'translateX(0)';
+                    }, 100);
+                }, 100);
+                return;
+            }
+
+            const data = destinyData[currentNumber - 1];
+
+            // 填充数据
+            document.getElementById('cardNumber').textContent = '第 ' + currentNumber + ' · 签';
+            document.getElementById('cardTitle').textContent = data.title;
+            document.getElementById('sectionColor').textContent = data.color;
+            document.getElementById('sectionCareer').textContent = data.career;
+            document.getElementById('sectionLove').textContent = data.love;
+            document.getElementById('sectionHeart').textContent = data.heart;
+
+            // 显示卡片
+            card.classList.remove('show');
+            setTimeout(function() {
+                card.classList.add('show');
+                hint.classList.remove('show');
+
+                // 平滑滚动到卡片
+                card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }, 100);
+        }
+
+        // 键盘支持
+        document.addEventListener('keydown', function(e) {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                shakeNumber();
+            } else if (e.code === 'Enter') {
+                e.preventDefault();
+                viewDestiny();
+            }
+        });
+    </script>
+</body>
+</html>
