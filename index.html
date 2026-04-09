@@ -367,6 +367,20 @@
         }
     </style>
 <base target="_blank">
+    <!-- 微信分享优化 - Open Graph 标签 -->
+    <meta property="og:title" content="七星曜 · 二百命格签">
+    <meta property="og:description" content="摇数问心，今日之数已待。命理是镜，你才是光。">
+    <meta property="og:image" content="https://wenwen3yan-cell.github.io/Destiny/images/qixingyao_share.jpg">
+    <meta property="og:url" content="https://wenwen3yan-cell.github.io/Destiny/qixingyao_200.html">
+    <meta property="og:type" content="website">
+    
+    <!-- 微信专用 -->
+    <meta name="wx:title" content="七星曜 · 二百命格签">
+    <meta name="wx:description" content="摇数问心，今日之数已待。命理是镜，你才是光。">
+    <meta name="wx:image" content="https://wenwen3yan-cell.github.io/Destiny/images/qixingyao_share.jpg">
+    
+    <!-- 移动端优化 -->
+    <meta name="format-detection" content="telephone=no">
 </head>
 <body>
     <!-- 背景装饰文字改为知、行 -->
@@ -2114,6 +2128,10 @@ const destinyData = [
 
                 // 平滑滚动到卡片
                 card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                // 更新分享内容（如果支持动态更新）
+                if (typeof updateShareContent === 'function') {
+                    updateShareContent(currentNumber, data.title);
+                }
             }, 100);
         }
 
@@ -2127,6 +2145,34 @@ const destinyData = [
                 viewDestiny();
             }
         });
+    </script>
+    <!-- 微信分享动态更新 -->
+    <script>
+        // 动态分享内容
+        let shareData = {
+            title: '七星曜 · 二百命格签',
+            desc: '摇数问心，今日之数已待。命理是镜，你才是光。',
+            link: 'https://wenwen3yan-cell.github.io/Destiny/qixingyao_200.html',
+            imgUrl: 'https://wenwen3yan-cell.github.io/Destiny/images/qixingyao_share.jpg'
+        };
+
+        // 摇签后更新分享内容
+        function updateShareContent(number, title) {
+            if (number && title) {
+                shareData.title = `【第${number}签】${title} · 七星曜`;
+                shareData.desc = `我摇出了第${number}签"${title}"，今日心印已得。来试试你的？`;
+                
+                // 更新 document title（浏览器标签）
+                document.title = shareData.title;
+                
+                // 更新 meta 标签（部分浏览器支持）
+                document.querySelector('meta[property=\"og:title\"]').setAttribute('content', shareData.title);
+                document.querySelector('meta[property=\"og:description\"]').setAttribute('content', shareData.desc);
+            }
+        }
+
+        // 在 viewDestiny 函数最后调用 updateShareContent
+        // 注意：这是给摇签后用的，当前页面不需要微信 JS-SDK 也能基础分享
     </script>
 </body>
 </html>
