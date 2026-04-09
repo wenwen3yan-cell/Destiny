@@ -433,7 +433,13 @@
                 <div class="section-content" id="sectionHeart"></div>
             </div>
         </div>
-
+         <!-- 分享按钮 -->
+        <div style="text-align: center;">
+            <button class="share-btn" id="shareBtn" onclick="generateSharePoster()">
+                生成分享海报
+            </button>
+        </div>
+        
         <footer class="footer">
             命理是镜，你才是光
         </footer>
@@ -2128,10 +2134,16 @@ const destinyData = [
 
                 // 平滑滚动到卡片
                 card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                                
                                 // 更新分享内容（如果支持动态更新）
                 if (typeof updateShareContent === 'function') {
                     updateShareContent(currentNumber, data.title);
                 }
+                // 显示分享按钮
+                setTimeout(() => {
+                    const shareBtn = document.getElementById('shareBtn');
+                    if (shareBtn) shareBtn.classList.add('show');
+                }, 500);
             }, 100);
         }
 
@@ -2174,5 +2186,301 @@ const destinyData = [
         // 在 viewDestiny 函数最后调用 updateShareContent
         // 注意：这是给摇签后用的，当前页面不需要微信 JS-SDK 也能基础分享
     </script>
+    <!-- 动态分享图生成 -->
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        /* 隐藏的海报模板 */
+        #sharePosterTemplate {
+            position: fixed;
+            left: -9999px;
+            top: 0;
+            width: 600px;
+            height: 800px;
+            background: linear-gradient(135deg, #F9F8F6 0%, #F5F2EB 100%);
+            padding: 60px 50px;
+            box-sizing: border-box;
+            font-family: 'Noto Serif SC', serif;
+            overflow: hidden;
+        }
+        
+        #sharePosterTemplate::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 20px 20px;
+            pointer-events: none;
+        }
+        
+        .poster-header {
+            text-align: center;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .poster-number {
+            font-size: 24px;
+            color: #B76E3A;
+            letter-spacing: 8px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+        
+        .poster-title {
+            font-size: 56px;
+            color: #2C2C2C;
+            font-weight: 700;
+            letter-spacing: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .poster-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            color: #B76E3A;
+            font-size: 14px;
+            margin-bottom: 50px;
+        }
+        
+        .poster-divider::before,
+        .poster-divider::after {
+            content: '';
+            width: 60px;
+            height: 1px;
+            background: #B76E3A;
+        }
+        
+        .poster-section {
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .poster-label {
+            font-size: 18px;
+            color: #8B5A2B;
+            letter-spacing: 4px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .poster-label::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: #B76E3A;
+            border-radius: 50%;
+        }
+        
+        .poster-content {
+            font-size: 22px;
+            color: #2C2C2C;
+            line-height: 1.8;
+            padding-left: 14px;
+            border-left: 2px solid rgba(183, 110, 58, 0.3);
+        }
+        
+        .poster-heart {
+            background: linear-gradient(135deg, rgba(183, 110, 58, 0.08) 0%, rgba(139, 90, 43, 0.05) 100%);
+            padding: 30px;
+            border-radius: 8px;
+            border-left: 3px solid #B76E3A;
+            margin-top: 50px;
+        }
+        
+        .poster-heart .poster-label {
+            color: #B76E3A;
+        }
+        
+        .poster-heart .poster-content {
+            font-size: 24px;
+            color: #8B5A2B;
+            font-style: italic;
+            line-height: 2;
+            border-left: none;
+            padding-left: 0;
+        }
+        
+        .poster-footer {
+            position: absolute;
+            bottom: 40px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            font-size: 16px;
+            color: #999;
+            letter-spacing: 2px;
+        }
+        
+        /* 分享按钮样式 */
+        .share-btn {
+            display: none;
+            margin-top: 24px;
+            padding: 12px 32px;
+            background: linear-gradient(135deg, #B76E3A 0%, #8B5A2B 100%);
+            color: white;
+            border: none;
+            border-radius: 24px;
+            font-size: 15px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(183, 110, 58, 0.3);
+        }
+        
+        .share-btn.show {
+            display: inline-block;
+        }
+        
+        /* 生成的图片预览 */
+        #generatedImage {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 90vw;
+            max-height: 80vh;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 8px;
+            z-index: 1000;
+        }
+        
+        #imageOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            z-index: 999;
+        }
+        
+        .image-hint {
+            display: none;
+            position: fixed;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 14px;
+            letter-spacing: 2px;
+            z-index: 1001;
+            text-align: center;
+        }
+    </style>
+    
+    <!-- 隐藏的海报模板 -->
+    <div id="sharePosterTemplate">
+        <div class="poster-header">
+            <div class="poster-number" id="posterNumber">第 1 签</div>
+            <div class="poster-title" id="posterTitle">角木·震雷</div>
+            <div class="poster-divider">◆</div>
+        </div>
+        
+        <div class="poster-section">
+            <div class="poster-label">灵数 · 色讳</div>
+            <div class="poster-content" id="posterColor">忌3、7；幸色竹青、鸦黑。</div>
+        </div>
+        
+        <div class="poster-section">
+            <div class="poster-label">事局 · 进退</div>
+            <div class="poster-content" id="posterCareer">今天所有"再等一等"的事，请直接动手。</div>
+        </div>
+        
+        <div class="poster-heart">
+            <div class="poster-label">心印 · 一言</div>
+            <div class="poster-content" id="posterHeart">等待本身不是问题，把等待当成不作为的理由才是。</div>
+        </div>
+        
+        <div class="poster-footer">七星曜 · 摇数问心</div>
+    </div>
+    
+    <!-- 图片预览层 -->
+    <div id="imageOverlay" onclick="closeImagePreview()"></div>
+    <img id="generatedImage" onclick="closeImagePreview()">
+    <div class="image-hint" id="imageHint">长按图片保存或分享<br>点击任意处关闭</div>
+    
+    <script>
+        // 生成分享海报
+        function generateSharePoster() {
+            if (!currentNumber) {
+                alert('请先摇出今日之数');
+                return;
+            }
+            
+            const data = destinyData[currentNumber - 1];
+            
+            // 填充模板
+            document.getElementById('posterNumber').textContent = `第 ${currentNumber} 签`;
+            document.getElementById('posterTitle').textContent = data.title;
+            document.getElementById('posterColor').textContent = data.color;
+            document.getElementById('posterCareer').textContent = data.career;
+            document.getElementById('posterHeart').textContent = data.heart;
+            
+            // 使用 html2canvas 生成图片
+            const element = document.getElementById('sharePosterTemplate');
+            
+            html2canvas(element, {
+                scale: 2, // 高清输出
+                useCORS: true,
+                allowTaint: true,
+                backgroundColor: null,
+                logging: false
+            }).then(canvas => {
+                // 转换为图片
+                const imgData = canvas.toDataURL('image/png', 1.0);
+                
+                // 显示预览
+                const img = document.getElementById('generatedImage');
+                const overlay = document.getElementById('imageOverlay');
+                const hint = document.getElementById('imageHint');
+                
+                img.src = imgData;
+                img.style.display = 'block';
+                overlay.style.display = 'block';
+                hint.style.display = 'block';
+                
+                // 自动下载（可选）
+                // const link = document.createElement('a');
+                // link.download = `七星曜-第${currentNumber}签-${data.title}.png`;
+                // link.href = imgData;
+                // link.click();
+            }).catch(err => {
+                console.error('生成图片失败:', err);
+                alert('生成图片失败，请重试');
+            });
+        }
+        
+        // 关闭图片预览
+        function closeImagePreview() {
+            document.getElementById('generatedImage').style.display = 'none';
+            document.getElementById('imageOverlay').style.display = 'none';
+            document.getElementById('imageHint').style.display = 'none';
+        }
+        
+        // 在 viewDestiny 函数中显示分享按钮
+        function showShareButton() {
+            const btn = document.getElementById('shareBtn');
+            if (btn) btn.classList.add('show');
+        }
+    </script>
+    
 </body>
 </html>
