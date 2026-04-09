@@ -435,9 +435,9 @@
         </div>
         <!-- 分享按钮 -->
         <div style="text-align: center; white-space: nowrap;">
-            <button class="share-btn" id="shareBtn" onclick="generateSharePoster()" style="display: none;">
-    生成分享海报
-</button>
+           <button class="share-btn" id="shareBtn" onclick="generateSharePoster()">
+               生成分享海报
+           </button>
         </div>
         
         <footer class="footer">
@@ -2065,6 +2065,10 @@ const destinyData = [
             card.classList.remove('show');
             hint.classList.remove('show');
 
+             // 新增：隐藏分享按钮
+            const shareBtn = document.getElementById('shareBtn');
+            if (shareBtn) shareBtn.classList.remove('show');
+
             // 开始摇晃动画
             circle.classList.add('shaking');
             numberText.classList.remove('show');
@@ -2140,10 +2144,10 @@ const destinyData = [
                     updateShareContent(currentNumber, data.title);
                 }
                 // 显示分享按钮
-                setTimeout(() => {
-                    const shareBtn = document.getElementById('shareBtn');
-                    if (shareBtn) shareBtn.classList.add('show');
-                }, 500);
+                       setTimeout(() => {
+            const shareBtn = document.getElementById('shareBtn');
+            if (shareBtn) shareBtn.classList.add('show');
+        }, 500);
             }, 100);
         }
 
