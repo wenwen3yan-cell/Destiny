@@ -264,7 +264,7 @@
         }
 
         .section-content {
-            font-size: 15px;
+            font-size: 14px;
             color: var(--text-primary);
             line-height: 1.9;
             text-align: justify;
@@ -435,9 +435,9 @@
         </div>
         <!-- 分享按钮 -->
         <div style="text-align: center; white-space: nowrap;">
-            <button class="share-btn" id="shareBtn" onclick="generateSharePoster()" style="display: inline-block; white-space: nowrap;">
-                生成分享海报
-            </button>
+            <button class="share-btn" id="shareBtn" onclick="generateSharePoster()" style="display: none;">
+    生成分享海报
+</button>
         </div>
         
         <footer class="footer">
@@ -2505,9 +2505,9 @@ const destinyData = [
         
         // 在 viewDestiny 函数中显示分享按钮
         function showShareButton() {
-            const btn = document.getElementById('shareBtn');
-            if (btn) btn.classList.add('show');
-        }
+    const btn = document.getElementById('shareBtn');
+    if (btn) btn.style.display = 'inline-block';
+}
     </script>
     
 </body>
